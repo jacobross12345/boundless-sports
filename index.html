@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BOUNDLESS SPORTS — Cross-Sport Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c10;
+    --surface: #0e1419;
+    --surface2: #141c24;
+    --border: #1e2d3d;
+    --border2: #243447;
+    --accent: #00e5ff;
+    --text: #e8f4f8;
+    --text2: #7a9ab0;
+    --text3: #3d5a6e;
+    --nfl: #ff6b35;
+    --nba: #ff4d6a;
+    --mlb: #4a90d9;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+  header { padding: 32px 0 0; border-bottom: 1px solid var(--border); }
+  .header-inner { display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 24px; }
+  .logo-name {
+    font-family: 'Bebas Neue', sans-serif; font-size: 52px; letter-spacing: 4px; line-height: 1;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--text) 60%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .logo-tagline { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3); letter-spacing: 3px; text-transform: uppercase; margin-top: 4px; }
+  .sport-badges { display: flex; gap: 8px; }
+  .badge { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; padding: 6px 12px; border-radius: 2px; text-transform: uppercase; }
+  .badge-nfl { background: rgba(255,107,53,0.15); border: 1px solid rgba(255,107,53,0.4); color: var(--nfl); }
+  .badge-nba { background: rgba(255,77,106,0.15); border: 1px solid rgba(255,77,106,0.4); color: var(--nba); }
+  .badge-mlb { background: rgba(74,144,217,0.15); border: 1px solid rgba(74,144,217,0.4); color: var(--mlb); }
+  .nav-tabs { display: flex; }
+  .tab { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; padding: 14px 28px; border: none; background: transparent; color: var(--text3); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; position: relative; bottom: -1px; }
+  .tab:hover { color: var(--text2); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  main { padding: 48px 0; }
+  .section { display: none; }
+  .section.active { display: block; }
+  .section-title { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 3px; margin-bottom: 8px; }
+  .section-sub { font-size: 13px; color: var(--text2); font-weight: 300; margin-bottom: 32px; }
+  .player-search-bar { display: flex; margin-bottom: 16px; }
+  .sport-select { background: var(--surface); border: 1px solid var(--border); border-right: none; border-radius: 4px 0 0 4px; padding: 14px 16px; color: var(--text2); font-family: 'DM Mono', monospace; font-size: 12px; outline: none; cursor: pointer; }
+  .sport-select option { background: var(--surface); }
+  .player-input { flex: 1; background: var(--surface); border: 1px solid var(--border); border-right: none; border-left: none; padding: 14px 20px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 13px; outline: none; transition: border-color 0.2s; }
+  .player-input:focus { border-color: var(--accent); }
+  .player-input::placeholder { color: var(--text3); }
+  .search-btn { background: var(--accent); color: var(--bg); border: none; padding: 14px 28px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; border-radius: 0 4px 4px 0; font-weight: 500; transition: background 0.2s; }
+  .search-btn:hover { background: #33ecff; }
+  .suggestions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 32px; align-items: center; }
+  .suggest-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); letter-spacing: 2px; text-transform: uppercase; width: 100%; }
+  .suggest-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text2); padding: 8px 14px; font-family: 'DM Sans', sans-serif; font-size: 12px; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 8px; transition: all 0.15s; }
+  .suggest-btn:hover { background: var(--surface2); color: var(--text); border-color: var(--border2); }
+  .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .player-card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .player-card-header { padding: 24px 28px; background: var(--surface2); border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; }
+  .player-name { font-family: 'Bebas Neue', sans-serif; font-size: 42px; letter-spacing: 3px; line-height: 1; margin-bottom: 6px; }
+  .player-meta { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text2); letter-spacing: 2px; text-transform: uppercase; }
+  .player-card-body { padding: 28px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+  .stat-box { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 16px; }
+  .stat-box-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+  .stat-box-value { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; }
+  .stat-box-value.nfl { color: var(--nfl); }
+  .stat-box-value.nba { color: var(--nba); }
+  .stat-box-value.mlb { color: var(--mlb); }
+  .loading { text-align: center; padding: 60px; }
+  .loading-text { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text3); letter-spacing: 3px; text-transform: uppercase; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
+  .empty-state { text-align: center; padding: 60px; color: var(--text3); }
+  .empty-state .icon { font-size: 48px; margin-bottom: 16px; opacity: 0.4; }
+  .empty-state p { font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; }
+  .error-box { padding: 24px 28px; background: rgba(255,77,106,0.05); border: 1px solid rgba(255,77,106,0.2); border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--nba); letter-spacing: 1px; }
+  .metric-selector { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 40px; }
+  .sport-column { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+  .sport-column-header { padding: 14px 20px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+  .sport-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .nfl-dot { background: var(--nfl); box-shadow: 0 0 8px var(--nfl); }
+  .nba-dot { background: var(--nba); box-shadow: 0 0 8px var(--nba); }
+  .mlb-dot { background: var(--mlb); box-shadow: 0 0 8px var(--mlb); }
+  .metric-list { list-style: none; padding: 8px 0; }
+  .metric-item { padding: 10px 20px; font-family: 'DM Mono', monospace; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all 0.15s; border-left: 2px solid transparent; color: var(--text2); }
+  .metric-item:hover { background: var(--surface2); color: var(--text); }
+  .metric-item.selected.nfl { color: var(--nfl); background: rgba(255,107,53,0.05); border-left-color: var(--nfl); }
+  .metric-item.selected.nba { color: var(--nba); background: rgba(255,77,106,0.05); border-left-color: var(--nba); }
+  .metric-item.selected.mlb { color: var(--mlb); background: rgba(74,144,217,0.05); border-left-color: var(--mlb); }
+  .metric-abbr { font-size: 10px; color: var(--text3); letter-spacing: 1px; }
+  .translation-result { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; animation: fadeIn 0.3s ease; }
+  .result-header { padding: 20px 28px; border-bottom: 1px solid var(--border); background: var(--surface2); display: flex; align-items: center; gap: 16px; }
+  .result-metric-name { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 3px; line-height: 1; }
+  .result-body { padding: 28px; }
+  .result-definition { font-size: 14px; color: var(--text2); line-height: 1.7; margin-bottom: 28px; font-weight: 300; max-width: 700px; }
+  .translations-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .translation-card { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 20px; position: relative; overflow: hidden; }
+  .translation-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; }
+  .translation-card.to-nfl::before { background: var(--nfl); }
+  .translation-card.to-nba::before { background: var(--nba); }
+  .translation-card.to-mlb::before { background: var(--mlb); }
+  .card-sport { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; }
+  .card-equivalent { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 2px; margin-bottom: 10px; }
+  .card-equivalent.nfl { color: var(--nfl); }
+  .card-equivalent.nba { color: var(--nba); }
+  .card-equivalent.mlb { color: var(--mlb); }
+  .card-explanation { font-size: 13px; color: var(--text2); line-height: 1.6; font-weight: 300; }
+  .similarity-bar { margin-top: 14px; display: flex; align-items: center; gap: 10px; }
+  .similarity-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); letter-spacing: 1px; white-space: nowrap; }
+  .bar-track { flex: 1; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 2px; }
+  .bar-fill.nfl { background: var(--nfl); }
+  .bar-fill.nba { background: var(--nba); }
+  .bar-fill.mlb { background: var(--mlb); }
+  .similarity-pct { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text2); width: 30px; text-align: right; }
+  footer { border-top: 1px solid var(--border); padding: 24px 0; display: flex; align-items: center; justify-content: space-between; }
+  .footer-brand { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 3px; color: var(--text3); }
+  .footer-note { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); letter-spacing: 1px; }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-name">Boundless Sports</div>
+        <div class="logo-tagline">Cross-Sport Analytics Translation Engine</div>
+      </div>
+      <div class="sport-badges">
+        <span class="badge badge-nfl">NFL</span>
+        <span class="badge badge-nba">NBA</span>
+        <span class="badge badge-mlb">MLB</span>
+      </div>
+    </div>
+    <div class="nav-tabs">
+      <button class="tab active" onclick="switchTab('players', this)">Player Translator</button>
+      <button class="tab" onclick="switchTab('metrics', this)">Metric Translator</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- PLAYER TRANSLATOR -->
+    <div id="players" class="section active">
+      <div class="section-title">Player Translator</div>
+      <div class="section-sub">Search any player — see their real live stats pulled directly from official sources</div>
+      <div class="player-search-bar">
+        <select class="sport-select" id="sportSelect">
+          <option value="mlb">MLB</option>
+          <option value="nba">NBA</option>
+          <option value="nfl">NFL</option>
+        </select>
+        <input type="text" class="player-input" id="playerInput" placeholder="Search a player... e.g. Mike Trout" onkeydown="if(event.key==='Enter')searchPlayer()">
+        <button class="search-btn" onclick="searchPlayer()">Search →</button>
+      </div>
+      <div class="suggestions">
+        <div class="suggest-label">Quick Select</div>
+        <button class="suggest-btn" onclick="quickSearch('mlb','mike trout')"><div class="dot" style="background:var(--mlb)"></div>Mike Trout</button>
+        <button class="suggest-btn" onclick="quickSearch('mlb','shohei ohtani')"><div class="dot" style="background:var(--mlb)"></div>Shohei Ohtani</button>
+        <button class="suggest-btn" onclick="quickSearch('nba','lebron james')"><div class="dot" style="background:var(--nba)"></div>LeBron James</button>
+        <button class="suggest-btn" onclick="quickSearch('nba','stephen curry')"><div class="dot" style="background:var(--nba)"></div>Stephen Curry</button>
+        <button class="suggest-btn" onclick="quickSearch('nfl','patrick mahomes')"><div class="dot" style="background:var(--nfl)"></div>Patrick Mahomes</button>
+        <button class="suggest-btn" onclick="quickSearch('nfl','lamar jackson')"><div class="dot" style="background:var(--nfl)"></div>Lamar Jackson</button>
+      </div>
+      <div id="playerResult">
+        <div class="empty-state">
+          <div class="icon">🏆</div>
+          <p>Search any player to see their live stats</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- METRIC TRANSLATOR -->
+    <div id="metrics" class="section">
+      <div class="section-title">Metric Translator</div>
+      <div class="section-sub">Select any metric — see its equivalent across all three sports with detailed explanations</div>
+      <div class="metric-selector">
+        <div class="sport-column">
+          <div class="sport-column-header"><div class="sport-dot nfl-dot"></div>NFL Football</div>
+          <ul class="metric-list">
+            <li class="metric-item nfl" onclick="selectMetric('nfl','epa', event)">Expected Points Added <span class="metric-abbr">EPA</span></li>
+            <li class="metric-item nfl" onclick="selectMetric('nfl','dvoa', event)">DVOA <span class="metric-abbr">DVOA</span></li>
+            <li class="metric-item nfl" onclick="selectMetric('nfl','ay_s', event)">Air Yards / Attempt <span class="metric-abbr">AY/A</span></li>
+            <li class="metric-item nfl" onclick="selectMetric('nfl','passer_rating', event)">Passer Rating <span class="metric-abbr">PR</span></li>
+            <li class="metric-item nfl" onclick="selectMetric('nfl','war_nfl', event)">Wins Above Replacement <span class="metric-abbr">WAR</span></li>
+          </ul>
+        </div>
+        <div class="sport-column">
+          <div class="sport-column-header"><div class="sport-dot nba-dot"></div>NBA Basketball</div>
+          <ul class="metric-list">
+            <li class="metric-item nba" onclick="selectMetric('nba','ts', event)">True Shooting % <span class="metric-abbr">TS%</span></li>
+            <li class="metric-item nba" onclick="selectMetric('nba','bpm', event)">Box Plus/Minus <span class="metric-abbr">BPM</span></li>
+            <li class="metric-item nba" onclick="selectMetric('nba','war_nba', event)">Wins Above Replacement <span class="metric-abbr">WAR</span></li>
+            <li class="metric-item nba" onclick="selectMetric('nba','ortg', event)">Offensive Rating <span class="metric-abbr">ORTG</span></li>
+            <li class="metric-item nba" onclick="selectMetric('nba','raptor', event)">RAPTOR <span class="metric-abbr">RAPTOR</span></li>
+          </ul>
+        </div>
+        <div class="sport-column">
+          <div class="sport-column-header"><div class="sport-dot mlb-dot"></div>MLB Baseball</div>
+          <ul class="metric-list">
+            <li class="metric-item mlb" onclick="selectMetric('mlb','war_mlb', event)">Wins Above Replacement <span class="metric-abbr">WAR</span></li>
+            <li class="metric-item mlb" onclick="selectMetric('mlb','ops_plus', event)">OPS+ <span class="metric-abbr">OPS+</span></li>
+            <li class="metric-item mlb" onclick="selectMetric('mlb','fip', event)">Fielding Indep. Pitching <span class="metric-abbr">FIP</span></li>
+            <li class="metric-item mlb" onclick="selectMetric('mlb','wrc_plus', event)">Weighted Runs Created+ <span class="metric-abbr">wRC+</span></li>
+            <li class="metric-item mlb" onclick="selectMetric('mlb','xfip', event)">Expected FIP <span class="metric-abbr">xFIP</span></li>
+          </ul>
+        </div>
+      </div>
+      <div id="metricResult">
+        <div class="empty-state">
+          <div class="icon">⚡</div>
+          <p>Select a metric above to see its cross-sport translations</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-brand">Boundless Sports</div>
+    <div class="footer-note">Cross-Sport Analytics Translation Engine</div>
+  </footer>
+</div>
+
+<script>
+  const API = 'http://127.0.0.1:5000';
+
+  function switchTab(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function quickSearch(sport, name) {
+    document.getElementById('sportSelect').value = sport;
+    document.getElementById('playerInput').value = name;
+    searchPlayer();
+  }
+
+  async function searchPlayer() {
+    const sport = document.getElementById('sportSelect').value;
+    const name = document.getElementById('playerInput').value.trim();
+    if (!name) return;
+    const resultDiv = document.getElementById('playerResult');
+    resultDiv.innerHTML = '<div class="loading"><div class="loading-text">Fetching live data...</div></div>';
+    try {
+      const res = await fetch(`${API}/player/${sport}/${encodeURIComponent(name)}`);
+      const data = await res.json();
+      if (data.error) { resultDiv.innerHTML = `<div class="error-box">⚠ ${data.error}</div>`; return; }
+      renderPlayer(data, sport, resultDiv);
+    } catch (e) {
+      resultDiv.innerHTML = `<div class="error-box">⚠ Could not connect to Boundless Sports API. Make sure your backend is running in Terminal.</div>`;
+    }
+  }
+
+  function renderPlayer(data, sport, container) {
+    const allStats = {};
+    if (data.stats) {
+      for (const [k, v] of Object.entries(data.stats)) {
+        if (typeof v === 'object' && v !== null) {
+          for (const [k2, v2] of Object.entries(v)) { allStats[k2] = v2; }
+        } else { allStats[k] = v; }
+      }
+    }
+    const statBoxes = Object.entries(allStats).map(([k, v]) => `
+      <div class="stat-box">
+        <div class="stat-box-label">${k}</div>
+        <div class="stat-box-value ${sport}">${v}</div>
+      </div>`).join('');
+    container.innerHTML = `
+      <div class="player-card">
+        <div class="player-card-header">
+          <div>
+            <div class="player-name">${data.name}</div>
+            <div class="player-meta">${data.position} · ${data.sport}</div>
+          </div>
+          <span class="badge badge-${sport}">${data.sport}</span>
+        </div>
+        <div class="player-card-body">
+          <div class="stats-grid">${statBoxes}</div>
+        </div>
+      </div>`;
+  }
+
+  const metrics = {
+    nfl: {
+      epa: { name:'Expected Points Added', abbr:'EPA', sport:'NFL', definition:'EPA measures how many points a play added or subtracted relative to the expected point value at the start of that play. It contextualizes every play within game situation — a 5-yard gain on 3rd & 4 is worth more EPA than a 5-yard gain on 1st & 10.', translations:{ nba:{metric:'Points Per Possession Differential',abbr:'PPP+/-',similarity:88,explanation:'PPP differential measures how many points a possession added vs. average expectation — nearly identical to EPA. When analysts talk about on/off splits, they\'re measuring something almost exactly like EPA: point-value impact per possession.'}, mlb:{metric:'Run Expectancy Delta (RE24)',abbr:'RE24',similarity:92,explanation:'RE24 is the direct mathematical cousin of EPA. It measures how much a plate appearance changed the run expectancy for an inning based on base-out state. Same logic, same math, different sport.'} } },
+      dvoa: { name:'DVOA', abbr:'DVOA', sport:'NFL', definition:'Defense-adjusted Value Over Average measures a team or player\'s efficiency by comparing every result to a league-average baseline and adjusting for opponent strength. A DVOA of +20% means a player performed 20% better than average after accounting for who they faced.', translations:{ nba:{metric:'Opponent-Adjusted Net Rating',abbr:'Adj. NetRtg',similarity:85,explanation:'Opponent-adjusted Net Rating is the NBA\'s DVOA equivalent. Both center measurement around a league-average baseline and strip out opponent quality. The philosophical DNA is identical.'}, mlb:{metric:'ERA+ / FIP-',abbr:'ERA+',similarity:90,explanation:'ERA+ is opponent-and-park adjusted ERA centered at 100, where 120 means 20% better than average. Both metrics solve the same problem: how do you compare performance across different competitive contexts?'} } },
+      ay_s: { name:'Air Yards per Attempt', abbr:'AY/A', sport:'NFL', definition:'Air Yards measure how far the ball travels in the air from the line of scrimmage to the catch point. AY/A divides total air yards by total pass attempts to reveal how aggressively a quarterback pushes the ball downfield.', translations:{ nba:{metric:'3-Point Attempt Rate',abbr:'3PAr',similarity:74,explanation:'3PAr captures the same concept — how far from the basket is a player choosing to shoot? A high 3PAr player is the basketball equivalent of a deep-ball QB: attacking the highest-value areas even at the cost of lower efficiency.'}, mlb:{metric:'Pull% / Hard Hit%',abbr:'Pull%',similarity:61,explanation:'Pull% measures directional aggression in baseball. A pull-heavy hitter is maximizing power at the cost of predictability, similar to a QB who always goes deep.'} } },
+      passer_rating: { name:'Passer Rating', abbr:'PR', sport:'NFL', definition:'The NFL\'s traditional quarterback efficiency metric, calculated from completion percentage, yards per attempt, touchdown rate, and interception rate. Now widely considered incomplete — it doesn\'t account for game situation, sacks, or opponent quality.', translations:{ nba:{metric:'Player Efficiency Rating',abbr:'PER',similarity:72,explanation:'PER is basketball\'s Passer Rating: the old-guard all-in-one metric that made sense in its era but has real limitations. Both weight box-score production heavily, ignore context, and have been largely superseded by better metrics.'}, mlb:{metric:'ERA',abbr:'ERA',similarity:78,explanation:'ERA is to FIP what Passer Rating is to EPA: the famous easy-to-explain metric that serious analysts have moved past. Both capture visible outcomes while missing important context.'} } },
+      war_nfl: { name:'Wins Above Replacement', abbr:'WAR', sport:'NFL', definition:'WAR in football attempts to measure how many wins a player contributed beyond what a replacement player would have. NFL WAR is far less developed than its MLB counterpart due to football\'s team-dependent nature.', translations:{ nba:{metric:'Wins Above Replacement / VORP',abbr:'VORP',similarity:95,explanation:'NBA WAR (VORP) is the most direct translation: same framework, same philosophy, better data. Basketball WAR is actually more reliable than football WAR because individual impact is more isolatable.'}, mlb:{metric:'Wins Above Replacement',abbr:'fWAR',similarity:100,explanation:'This is where WAR originated and where it is most developed. MLB WAR has decades of refinement and near-universal acceptance. NFL and NBA WAR are derivatives of this concept.'} } }
+    },
+    nba: {
+      ts: { name:'True Shooting %', abbr:'TS%', sport:'NBA', definition:'True Shooting Percentage adjusts field goal percentage to account for the extra value of three-pointers and free throws. League average TS% hovers around 57-58%. It\'s the single best measure of pure scoring efficiency.', translations:{ nfl:{metric:'Adjusted Net Yards per Attempt',abbr:'ANY/A',similarity:81,explanation:'ANY/A weights each outcome by its true value — exactly what TS% does. It adds touchdowns and penalizes interceptions as yard equivalents, creating a single efficiency number.'}, mlb:{metric:'wOBA / wRC+',abbr:'wOBA',similarity:94,explanation:'wOBA assigns proper value to each outcome — singles, doubles, home runs all weighted differently. TS% weights twos, threes, and free throws. Both replace blunt metrics with properly weighted efficiency measures.'} } },
+      bpm: { name:'Box Plus/Minus', abbr:'BPM', sport:'NBA', definition:'BPM estimates a player\'s contribution in points per 100 possessions relative to league average using only box score data. A BPM of +5 means the team outscores opponents by 5 points per 100 possessions with that player on the floor.', translations:{ nfl:{metric:'EPA per Play (Position-Adjusted)',abbr:'EPA/play',similarity:80,explanation:'Position-adjusted EPA per play is the closest NFL equivalent: both try to estimate a player\'s per-unit contribution relative to average. EPA/play has cleaner credit assignment because football plays are discrete events.'}, mlb:{metric:'wRC+ / FIP-',abbr:'wRC+',similarity:86,explanation:'wRC+ for hitters and FIP- for pitchers are baseball\'s BPM equivalents: league- and park-adjusted, measuring production relative to average. The purpose is identical.'} } },
+      war_nba: { name:'Wins Above Replacement', abbr:'WAR', sport:'NBA', definition:'NBA WAR (often called VORP) estimates total wins contributed above a replacement-level player. Because basketball has more individual impact than football, NBA WAR is considered more reliable than NFL WAR.', translations:{ nfl:{metric:'Wins Above Replacement',abbr:'WAR',similarity:90,explanation:'NFL WAR uses the same framework but is harder to calculate reliably. Football\'s team dependency makes isolating individual value much harder than basketball. The concept translates perfectly; the reliability differs.'}, mlb:{metric:'Wins Above Replacement',abbr:'fWAR',similarity:95,explanation:'MLB WAR is the gold standard — where the concept was born and most refined. Baseball\'s discrete nature makes WAR more precise here than in any other sport.'} } },
+      ortg: { name:'Offensive Rating', abbr:'ORTG', sport:'NBA', definition:'Offensive Rating measures how many points a player or team scores per 100 possessions. League average is roughly 110-115 in the modern era. It\'s the foundational building block of modern NBA team analysis.', translations:{ nfl:{metric:'Points Per Drive',abbr:'PPD',similarity:79,explanation:'Points Per Drive is football\'s possession-efficiency equivalent to ORTG. Both normalize offense to a per-possession basis so teams with different tempos can be compared fairly.'}, mlb:{metric:'Park-Adjusted Runs Per Game',abbr:'R/G+',similarity:71,explanation:'Park-adjusted runs per game approximates what ORTG does in basketball: normalize a team\'s offensive production to a common baseline, removing environmental factors.'} } },
+      raptor: { name:'RAPTOR', abbr:'RAPTOR', sport:'NBA', definition:'RAPTOR combines player tracking data with on/off ratings. It\'s the most complete publicly available NBA metric because it incorporates movement data, shot quality, and defensive positioning — not just box score outputs.', translations:{ nfl:{metric:'Next Gen Stats EPA + Tracking',abbr:'NGS EPA',similarity:83,explanation:'NFL Next Gen Stats EPA incorporates player tracking data from RFID chips — the closest football equivalent to RAPTOR. Both go beyond box scores to use physical tracking data.'}, mlb:{metric:'Statcast-based WAR',abbr:'xWAR',similarity:85,explanation:'Statcast-based WAR incorporating exit velocity, launch angle, and sprint speed is the MLB equivalent of RAPTOR — the same marriage of tracking data and value estimation.'} } }
+    },
+    mlb: {
+      war_mlb: { name:'Wins Above Replacement', abbr:'WAR', sport:'MLB', definition:'Baseball\'s WAR is the most developed single-player value metric in professional sports. It combines offensive production, baserunning, defensive value, and positional adjustment. 0 is replacement level, 2 is a starter, 5 is All-Star, 8+ is MVP.', translations:{ nfl:{metric:'Wins Above Replacement',abbr:'WAR',similarity:88,explanation:'NFL WAR is the direct philosophical translation but significantly less reliable. Baseball\'s discrete events make attribution clean. Think of NFL WAR as WAR with much wider error bars.'}, nba:{metric:'Wins Above Replacement / VORP',abbr:'VORP',similarity:92,explanation:'NBA WAR (VORP) is the most reliable non-baseball WAR because basketball involves clear matchups and decent credit-assignment tools. The framework is identical.'} } },
+      ops_plus: { name:'OPS+', abbr:'OPS+', sport:'MLB', definition:'OPS+ combines On-Base Percentage and Slugging Percentage, adjusted for park and league, centered at 100. A 130 OPS+ means a hitter is 30% better than league average.', translations:{ nfl:{metric:'Passer Rating',abbr:'PR',similarity:75,explanation:'OPS+ and Passer Rating occupy the same historical role: the old-guard efficiency metric that non-analysts still cite, contains real signal, but has been superseded by better tools.'}, nba:{metric:'Player Efficiency Rating',abbr:'PER',similarity:78,explanation:'OPS+ and PER are the second-generation metrics in their sports — better than batting average or points per game, but not as rigorous as modern all-in-one metrics. Both remain widely cited despite well-documented flaws.'} } },
+      fip: { name:'Fielding Independent Pitching', abbr:'FIP', sport:'MLB', definition:'FIP strips away events pitchers don\'t control and focuses only on strikeouts, walks, hit batters, and home runs. It\'s a better predictor of future ERA than ERA itself.', translations:{ nfl:{metric:'Pressure Rate / Scheme-Adjusted EPA',abbr:'Pressure%',similarity:77,explanation:'Pressure Rate isolates what a pass rusher controlled — just as FIP removes the defense behind a pitcher. Both strip out team-dependent noise to reveal individual contribution.'}, nba:{metric:'Defensive Box Plus/Minus',abbr:'DBPM',similarity:69,explanation:'DBPM tries to isolate a defender\'s contribution from their teammates\' system, similar to how FIP isolates a pitcher from his defense. The philosophical goal is the same.'} } },
+      wrc_plus: { name:'Weighted Runs Created+', abbr:'wRC+', sport:'MLB', definition:'wRC+ weights every offensive event by its actual run value, adjusts for park and league, and centers at 100. A 150 wRC+ means a hitter created 50% more run value than average. It\'s the gold standard hitting metric in baseball.', translations:{ nfl:{metric:'Weighted EPA per Dropback',abbr:'wEPA',similarity:86,explanation:'Weighted EPA per dropback assigns proper EPA value to each outcome — the closest football analog to wRC+. Both replace simple rate stats with properly weighted outcome values.'}, nba:{metric:'True Shooting % × Usage',abbr:'TS% × USG',similarity:88,explanation:'The combination of TS% and Usage Rate most closely mirrors wRC+. TS% handles efficiency; Usage captures volume. This is how analysts actually reason about offensive value in basketball.'} } },
+      xfip: { name:'Expected FIP', abbr:'xFIP', sport:'MLB', definition:'xFIP takes FIP further by normalizing home run rates — replacing actual totals with expected numbers based on fly ball rate and league-average HR/FB rate. It\'s the best single-season predictor of future pitching performance.', translations:{ nfl:{metric:'Scheme-Adjusted EPA',abbr:'Adj. EPA',similarity:80,explanation:'Scheme-adjusted EPA attempts the same regression xFIP applies to pitchers: remove high-variance outcomes and replace them with expected values based on what the QB actually controlled.'}, nba:{metric:'Expected Value Added',abbr:'xEVA',similarity:83,explanation:'Expected Value Added metrics that use shot quality rather than actual makes and misses are the NBA\'s xFIP — normalizing for luck the same way xFIP normalizes for HR/FB variance.'} } }
+    }
+  };
+
+  function selectMetric(sport, key, e) {
+    document.querySelectorAll('.metric-item').forEach(el => el.classList.remove('selected','nfl','nba','mlb'));
+    e.currentTarget.classList.add('selected', sport);
+    const data = metrics[sport][key];
+    const colors = { nfl:'var(--nfl)', nba:'var(--nba)', mlb:'var(--mlb)' };
+    const others = ['nfl','nba','mlb'].filter(s => s !== sport);
+    const cards = others.map(t => {
+      const tr = data.translations[t];
+      return `<div class="translation-card to-${t}">
+        <div class="card-sport">${t.toUpperCase()} Equivalent</div>
+        <div class="card-equivalent ${t}">${tr.metric}</div>
+        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);margin-bottom:12px">${tr.abbr}</div>
+        <div class="card-explanation">${tr.explanation}</div>
+        <div class="similarity-bar">
+          <div class="similarity-label">Conceptual Match</div>
+          <div class="bar-track"><div class="bar-fill ${t}" style="width:${tr.similarity}%"></div></div>
+          <div class="similarity-pct">${tr.similarity}%</div>
+        </div>
+      </div>`;
+    }).join('');
+    document.getElementById('metricResult').innerHTML = `
+      <div class="translation-result">
+        <div class="result-header">
+          <div class="result-metric-name" style="color:${colors[sport]}">${data.abbr}</div>
+          <div>
+            <div style="font-size:18px;font-weight:600;color:var(--text);margin-bottom:4px">${data.name}</div>
+            <span class="badge badge-${sport}">${sport.toUpperCase()}</span>
+          </div>
+        </div>
+        <div class="result-body">
+          <div class="result-definition">${data.definition}</div>
+          <div class="translations-grid">${cards}</div>
+        </div>
+      </div>`;
+  }
+</script>
+</body>
+</html>
