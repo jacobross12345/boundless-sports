@@ -166,11 +166,15 @@ def get_player(sport, n):
     sport = sport.lower()
 
     # Check cache first
-    cache_key = n.lower()
-    if cache_key in PLAYER_CACHE:
-        cached = PLAYER_CACHE[cache_key]
-        if cached.get("sport", "").lower() == sport:
-            return jsonify(cached)
+    import unicodedata
+    def normalize(s):
+        return unicodedata.normalize('NFD', s).encode('ascii', 'ignore').decode('utf-8').lower()
+
+    cache_key = normalize(n)
+    for k, v in PLAYER_CACHE.items():
+        if normalize(k) == cache_key:
+            if v.get("sport", "").lower() == sport:
+                return jsonify(v)
 
     try:
         if sport == "mlb":
