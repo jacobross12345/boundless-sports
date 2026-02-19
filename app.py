@@ -164,6 +164,14 @@ def search_nfl_player(name):
 @app.route("/player/<sport>/<n>")
 def get_player(sport, n):
     sport = sport.lower()
+
+    # Check cache first
+    cache_key = n.lower()
+    if cache_key in PLAYER_CACHE:
+        cached = PLAYER_CACHE[cache_key]
+        if cached.get("sport", "").lower() == sport:
+            return jsonify(cached)
+
     try:
         if sport == "mlb":
             data = search_mlb_player(n)
