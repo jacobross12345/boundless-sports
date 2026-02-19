@@ -8,9 +8,12 @@ import os
 cache_path = os.path.join(os.path.dirname(__file__), "players_cache.json")
 if os.path.exists(cache_path):
     with open(cache_path) as f:
-        PLAYER_CACHE = json.load(f)
+       PLAYER_CACHE = json.load(f)
 else:
     PLAYER_CACHE = {}
+
+print(f"Cache loaded: {len(PLAYER_CACHE)} players", flush=True)
+
 app = Flask(__name__)
 CORS(app)
 
