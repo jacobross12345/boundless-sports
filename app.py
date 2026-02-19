@@ -1,7 +1,16 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
 import requests
+import json
+import os
 
+# Load player cache
+cache_path = os.path.join(os.path.dirname(__file__), "players_cache.json")
+if os.path.exists(cache_path):
+    with open(cache_path) as f:
+        PLAYER_CACHE = json.load(f)
+else:
+    PLAYER_CACHE = {}
 app = Flask(__name__)
 CORS(app)
 
@@ -174,4 +183,6 @@ def health():
     return jsonify({"status": "ok", "message": "Rosetta Sports API is running"})
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    import os
+port = int(os.environ.get("PORT", 5000))
+app.run(debug=False, host="0.0.0.0", port=port)
