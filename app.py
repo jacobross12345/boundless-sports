@@ -197,6 +197,11 @@ def get_player(sport, n):
 def health():
     return jsonify({"status": "ok", "message": "Rosetta Sports API is running"})
 
+@app.route("/players/names")
+def get_player_names():
+    names = [{"name": v["name"], "sport": v["sport"]} for v in PLAYER_CACHE.values()]
+    return jsonify(names)
+
 if __name__ == "__main__":
     import os
 port = int(os.environ.get("PORT", 5000))
